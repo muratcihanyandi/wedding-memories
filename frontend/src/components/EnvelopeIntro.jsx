@@ -10,7 +10,7 @@ const WEDDING_AT = new Date(2026, 9, 25, 0, 0, 0).getTime();
 
 const OPEN_DELAY_MS = 1000; // kapali zarf bekleme suresi
 const HINT_DELAY_MS = 3900; // cekme ipucunun cikma zamani
-const LEAVE_MS = 720; // kapanis kayma animasyonu + pay
+const LEAVE_MS = 880; // kapanis kayma animasyonu + pay
 const DRAG_RESISTANCE = 0.55; // cekme direnci (zarf agirligi hissi)
 const DRAG_CLOSE_THRESHOLD = -70; // kapanis icin gereken cekme mesafesi (px)
 
@@ -44,7 +44,7 @@ function Countdown() {
   );
 }
 
-export default function EnvelopeIntro({ onDone }) {
+export default function EnvelopeIntro({ onReveal, onDone }) {
   const [opened, setOpened] = useState(false);
   const [hint, setHint] = useState(false);
   const [drag, setDrag] = useState({ active: false, y: 0 });
@@ -63,6 +63,7 @@ export default function EnvelopeIntro({ onDone }) {
   function close() {
     if (leaving) return;
     setLeaving(true);
+    onReveal?.(); // zarf kayarken siteyle birlikte yumusakca belirsin
     setTimeout(onDone, LEAVE_MS);
   }
 

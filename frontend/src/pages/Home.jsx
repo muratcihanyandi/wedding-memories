@@ -14,6 +14,7 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [nameExists, setNameExists] = useState(null); // girilen isim
   const [introDone, setIntroDone] = useState(false);
+  const [revealed, setRevealed] = useState(false); // zarf kayarken sitenin belirmesi
   const nameInputRef = useRef(null);
 
   // Zarf cekildikten sonra isim alani odaklansin (mobilde klavye intro sirasinda acilmasin)
@@ -99,8 +100,10 @@ export default function Home() {
 
   return (
     <>
-      {!introDone && <EnvelopeIntro onDone={() => setIntroDone(true)} />}
-      <main className="public-shell">
+      {!introDone && (
+        <EnvelopeIntro onReveal={() => setRevealed(true)} onDone={() => setIntroDone(true)} />
+      )}
+      <main className={revealed ? "public-shell" : "public-shell is-veiled"}>
         <header className="public-hero">
           <span className="heart" aria-hidden="true">
             <HeartIcon size={44} />
