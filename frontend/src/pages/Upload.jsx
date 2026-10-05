@@ -4,9 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch, uploadFile } from "../lib/api.js";
 import { humanSize, t } from "../texts.js";
 import { CameraIcon, HeartIcon, ImageIcon, VideoIcon } from "../components/icons.jsx";
-import PickerModal from "../components/PickerModal.jsx";
 
-const MAX_CONCURRENT = 2; // Pi ve WiFi'yi yormadan iki dosya ayni anda
+// Yukleme plani: fotograflar ONCE (en fazla 2 es zamanli - kucuk ve
+// hizlidirlar), videolar fotograf kuyrugu bittikten sonra TEK TEK
+// (buyuklerdir; Wi-Fi ve Raspberry Pi'yi yormamak icin). Videolar
+// eklendikleri sirayla yuklenir.
+const IMAGE_CONCURRENCY = 2;
+const VIDEO_CONCURRENCY = 1;
 
 let fileKeySeq = 0;
 
@@ -88,10 +92,11 @@ export default function Upload() {
   const [user, setUser] = useState(null);
   const [config, setConfig] = useState(null);
   const [items, setItems] = useState([]);
-  const [pickerOpen, setPickerOpen] = useState(false);
 
   const itemsRef = useRef(items);
-  const inflight = useRef(new Set());
+  // key -> isVideo (aktif yuklemelerin turu; es zamanlilik siniri icin)
+  const inflight = useRef(new Map());
+  const inputRef = useRef(null);
 
   useEffect(() => {
     itemsRef.current = items;
@@ -134,64 +139,116 @@ export default function Upload() {
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
 
+  const anyActive = items.some((i) => i.status === "uploading" || i.status === "waiting");
+
+  // Uzun video yuklemelerinde telefon ekraninin kapanmasini engelle -
+  // ekran kapaninca tarayici baglantiyi kesebiliyor ("baglanti hatasi"
+  // genellikle bundan kaynaklanir). Yukleme bitince kilit kendiliginden
+  // birakilir.
+  useEffect(() => {
+    if (!anyActive || !("wakeLock" in navigator)) return;
+    let lock = null;
+    let released = false;
+    navigator.wakeLock
+      .request("screen")
+      .then((l) => {
+        if (released) l.release().catch(() => {});
+        else lock = l;
+      })
+      .catch(() => {
+        /* desteklemeyen tarayicilar icin sessiz gec */
+      });
+    return () => {
+      released = true;
+      if (lock) lock.release().catch(() => {});
+    };
+  }, [anyActive]);
+
   // Tum dosyalar bitti ve hata yoksa basari ekranina gec
   useEffect(() => {
     if (items.length === 0) return;
-    const active = items.some((i) => i.status === "uploading" || i.status === "waiting");
-    if (active) return;
+    if (anyActive) return;
     const hasError = items.some((i) => i.status === "error");
     if (!hasError) {
       const timer = setTimeout(() => navigate("/success"), 600);
       return () => clearTimeout(timer);
     }
-  }, [items, navigate]);
+  }, [items, anyActive, navigate]);
 
   const updateItem = useCallback((key, patch) => {
     setItems((prev) => prev.map((i) => (i.key === key ? { ...i, ...patch } : i)));
   }, []);
 
-  const processQueue = useCallback(async () => {
-    // Inflight set'i senkron gunceller; itemsRef'e bakarak siradaki
-    // bekleyen dosyayi sec. Ayni dosyayi iki isciye vermeyi engeller.
+  function activeOfType(isVideo) {
+    let count = 0;
+    for (const value of inflight.current.values()) {
+      if (value === isVideo) count += 1;
+    }
+    return count;
+  }
+
+  async function beginUpload(item) {
+    inflight.current.set(item.key, !item.isImage);
+    updateItem(item.key, { status: "uploading", progress: 0, error: null });
+    try {
+      await uploadFile(item.file, (pct) => updateItem(item.key, { progress: pct }));
+      updateItem(item.key, { status: "done", progress: 100 });
+    } catch (err) {
+      if (err.status === 401) {
+        navigate("/", { replace: true });
+        return;
+      }
+      updateItem(item.key, { status: "error", error: err.message });
+    } finally {
+      inflight.current.delete(item.key);
+      startEligible(); // bir slot bosaldi - siradaki dosyayi baslat
+    }
+  }
+
+  // Siralayici: once bekleyen FOTOGRAFLAR (2 es zamanliye kadar),
+  // fotograflar bittiyse bekleyen VIDEOLAR (1 tane, ekleme sirasinda).
+  function startEligible() {
     for (;;) {
-      const next = itemsRef.current.find(
+      const waiting = itemsRef.current.filter(
         (i) => i.status === "waiting" && !inflight.current.has(i.key)
       );
-      if (!next) break;
-      inflight.current.add(next.key);
-      updateItem(next.key, { status: "uploading", progress: 0, error: null });
-      try {
-        await uploadFile(next.file, (pct) => updateItem(next.key, { progress: pct }));
-        updateItem(next.key, { status: "done", progress: 100 });
-      } catch (err) {
-        if (err.status === 401) {
-          navigate("/", { replace: true });
-          return;
-        }
-        updateItem(next.key, { status: "error", error: err.message });
-      } finally {
-        inflight.current.delete(next.key);
+      if (waiting.length === 0) return;
+
+      const nextImage = waiting.find((i) => i.isImage);
+      if (nextImage) {
+        if (activeOfType(false) >= IMAGE_CONCURRENCY) return;
+        beginUpload(nextImage);
+      } else {
+        // yalnizca videolar kaldi: tum fotograflar TAMAMEN bitsin,
+        // sonra videolar tek tek, ekleme sirasiyla
+        if (activeOfType(false) > 0) return;
+        if (activeOfType(true) >= VIDEO_CONCURRENCY) return;
+        beginUpload(waiting[0]);
       }
     }
-  }, [navigate, updateItem]);
+  }
 
-  // Yeni eklenen "waiting" dosyalar varken kuyrugu yeniden tetikle
+  // Yeni eklenen veya tekrar denenmis "waiting" dosya varsa siralayiciyi tetikle
   useEffect(() => {
-    const hasWaiting = items.some((i) => i.status === "waiting" && !inflight.current.has(i.key));
+    const hasWaiting = items.some(
+      (i) => i.status === "waiting" && !inflight.current.has(i.key)
+    );
     if (hasWaiting) {
-      processQueue();
+      startEligible();
     }
-  }, [items, processQueue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   function addFiles(fileList) {
     const accepted = Array.from(fileList).map(makeItem);
     if (accepted.length === 0) return;
     setItems((prev) => [...prev, ...accepted]);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   function retry(key) {
     updateItem(key, { status: "waiting", progress: 0, error: null });
-    processQueue();
+    startEligible();
   }
 
   function remove(key) {
@@ -216,7 +273,6 @@ export default function Upload() {
     );
   }
 
-  const activeCount = items.filter((i) => i.status === "uploading" || i.status === "waiting").length;
   const welcome = config?.upload_welcome_text || "Bu geceden kalan güzel anılarını bizimle paylaş.";
 
   return (
@@ -230,29 +286,29 @@ export default function Upload() {
       </header>
 
       <section>
+        <input
+          ref={inputRef}
+          id="file-input"
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          hidden
+          onChange={(e) => addFiles(e.target.files)}
+        />
         <button
           className="big-add"
-          onClick={() => setPickerOpen(true)}
+          onClick={() => inputRef.current && inputRef.current.click()}
           aria-labelledby="add-label"
         >
           <CameraIcon size={34} />
           <span id="add-label">{items.length === 0 ? t.addFilesBtn : t.addMoreBtn}</span>
         </button>
         <p className="text-soft center" style={{ marginTop: 10 }}>
-          Fotoğraflar ve videolar aynı anda seçilebilir.
+          {t.uploadOrderHint}
         </p>
-        {pickerOpen && (
-          <PickerModal
-            onConfirm={(files) => {
-              setPickerOpen(false);
-              addFiles(files);
-            }}
-            onClose={() => setPickerOpen(false)}
-          />
-        )}
       </section>
 
-      {activeCount > 0 && (
+      {anyActive && (
         <p className="notice notice-warn" role="status">
           {t.uploadWarning}
         </p>

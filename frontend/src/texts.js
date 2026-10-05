@@ -26,6 +26,7 @@ export const t = {
   retryBtn: "Tekrar Dene",
   removeBtn: "Kaldır",
   uploadWarning: "Yükleme sürerken bu sayfayı kapatmayın.",
+  uploadOrderHint: "Çoklu seçim yapabilirsin — fotoğraflar önce, videolar sırayla yüklenir.",
   filesCount: (n) => `${n} dosya`,
 
   // Başarı
@@ -46,15 +47,6 @@ export const t = {
   zipGroupedHint: "Her kişi kendi klasöründe",
   zipFlat: "Tek Klasör ZIP",
   zipFlatHint: "Tüm dosyalar birlikte",
-
-  // Dosya seçme penceresi (yükleme)
-  pickerTitle: "Anı Ekle",
-  pickerHint: "Galerinden fotoğraf ve video seç — tek tek veya toplu.",
-  pickerGallery: "Galeriden Seç",
-  pickerCamera: "Kamerayla Çek",
-  pickerAddMore: "+ Daha Ekle",
-  pickerSelected: (n) => `${n} dosya seçildi`,
-  pickerUpload: (n) => `${n} Dosyayı Yükle`,
 
   // Admin galeri
   adminGallery: "Galeri",

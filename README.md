@@ -50,7 +50,8 @@ Yükleme (progress bar)                Görüntüle · İndir · ZIP · Sil
 - Aynı isim girilirse "aynı kişiyim / farklı bir kişiyim" seçeneği sunulur; farklı kişiler `Elif-2` şeklinde ayrı klasör alır.
 - Dosyalar **hiçbir zaman RAM'e tam alınmadan**, 1 MB'lık parçalarla diske akıtılır (streaming). 1 GB+ düğün videoları güvenle yüklenebilir.
 - Yükleme yarıda kesilirse geçici dosya temizlenir, veritabanına kayıt oluşmaz.
-- **Dosya seçme penceresi**: "+ Fotoğraf veya Video Ekle" düğmesi site tasarımıyla uyumlu bir pencere açar — galeriden veya kameradan seçim yapılır; seçilen dosyalar işaretlenebilir/kaldırılabilir ızgarada listelenir ve tekli/toplu yükleme yapılır. (Not: tarayıcı güvenliği gereği cihaz galerisini sayfa içinden taramak mümkün değildir; "Galeriden Seç" sistemin kendi seçicisini açar, seçim sonrası akış tamamen site tasarımındadır.)
+- **Yükleme sırası**: "+ Fotoğraf veya Video Ekle" düğmesi telefonun/ildi sistemin kendi seçicisini direkt açar (çoklu seçim destekli). Yükleme planı: **önce tüm fotoğraflar** (en fazla 2 eşzamanlı), fotoğraflar tamamen bittikten **sonra videolar tek tek, ekleme sırasıyla** — büyük videolar Wi-Fi'yı ve Pi'yi yormaz.
+- **Uzun videolar için:** yükleme isteğinde bilinçli olarak timeout yoktur (GB'larca video yavaş Wi-Fi'da dakikalar sürebilir). Yükleme sırasında telefonun **ekran kilidi (Wake Lock)** aktif tutulur — ekran kapanınca tarayıcı bağlantıyı kesebiliyordu; bu, "bağlantı hatası" mesajlarının en yaygın sebebiydi. Yine de yükleme bitene kadar sekmeyi açık tutun.
 - **`/album` sayfası — HERKESE AÇIK** (giriş gerektirmez): tüm katılımcıların yüklediği fotoğraf/videolar yükleme sahibi adıyla listelenir. İki görünüm: **Tüm Fotoğraflar** (tek duvar) ve **Kişilere Göre** (kişi başı bölümler). Tıklayınca büyütme, indirme ve iki ZIP modu içerir. ⚠️ Linki bilen herkes bu sayfayı görebilir; silme/ayarlar yalnızca admin panelinde.
 - **Admin → Galeri** (`/admin/gallery`): aynı iki görünüm + seçim moduyla toplu/tekil silme, indirme ve ZIP — yönetim yetkileriyle.
 - **ZIP indirme** (albüm + admin galeri): **Klasörlü ZIP** (her kişi kendi klasöründe: `Elif/IMG_1234.jpg`) veya **Tek Klasör ZIP** (tüm dosyalar birlikte; çakışan isimler `isim_2` ile ayrıştırılır).
@@ -380,6 +381,7 @@ npm run build      # dist/ üretir; backend otomatik sunar
 | `docker compose ps` → unhealthy | `/api/health` başarısız: storage veya DB sorunu. `docker compose logs app` kontrol edin |
 | Sayfa 503 "Arayüz derlenmemiş" | İmajdaki statik dosya eksik (imajı `--build` ile yeniden oluşturun) |
 | Telefon siteyi açmıyor | Pi ve telefon aynı Wi-Fi ağında mı? `hostname -I` ile IP doğrulayın; adres `http://<pi-ip>:33464` olmalı ( portu unutmayın). Port çakışması olursa `.env`'de `APP_PORT` değiştirin |
+| Video yükleme ortasında "Bağlantı kesildi" | Genellikle telefon ekranı kapandığı için tarayıcı isteği keser (Wake Lock artık bunu engeller). Ekranı açık tutup "Tekrar Dene" ile devam edin; zaman aşımı yoktur, yükleme istediği kadar sürebilir |
 | Video oynatıcı seek etmiyor | Tarayıcı Range destekliyor olmalı; modern tarayıcıda sorun çıkmaz. Eski cihazda dosyayı indirin |
 | Pi restart sonrası site yok | `restart: unless-stopped` + `systemctl enable docker` sayesinde otomatik açılır. Açılmıyorsa: `docker compose ps`, `systemctl status docker` |
 

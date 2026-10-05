@@ -101,11 +101,8 @@ export function uploadFile(file, onProgress) {
       err.status = 0;
       reject(err);
     };
-    xhr.ontimeout = () => {
-      const err = new Error("Yükleme zaman aşımına uğradı. Tekrar deneyin.");
-      err.status = 0;
-      reject(err);
-    };
+    // Bilincli olarak timeout YOK (xhr.timeout = 0): GB boyutlu dugun
+    // videolari yavas Wi-Fi'da dakikalar surebilir.
 
     const form = new FormData();
     form.append("files", file, file.name);
