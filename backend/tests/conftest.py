@@ -29,34 +29,56 @@ def db_engine(tmp_path):
 
 
 @pytest.fixture()
-def client(tmp_path, monkeypatch):
-    """Uygulamayi test ortami env'i ile olusturur.
+def client_factory(tmp_path, monkeypatch):
+    """Ortam degiskeni override'iyla uygulama ureten fabrika.
 
-    Cookie'ler TestClient uzerinde otomatik yonetilir; upload testlerinde
-    ayni client ile coklu oturum gerekiyorsa cookie header'i elle verilir.
+    client_factory(MAX_UPLOAD_SIZE_MB="1") gibi cagrilarak testlere ozel
+    ayarlar verilebilir.
     """
-    upload_root = tmp_path / "uploads"
-    upload_root.mkdir()
-    monkeypatch.setenv("APP_ENV", "development")
-    monkeypatch.setenv("UPLOAD_ROOT", str(upload_root))
-    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{(tmp_path / 'app.sqlite3').as_posix()}")
-    monkeypatch.setenv("REQUIRE_STORAGE_MARKER", "false")
-    monkeypatch.setenv("SESSION_SECRET", "test-secret")
-    monkeypatch.setenv("ADMIN_USERNAME", ADMIN_USER)
-    monkeypatch.setenv("ADMIN_PASSWORD_HASH", hash_password(ADMIN_PASS))
-    monkeypatch.setenv("LOGIN_MAX_FAILURES", "5")
-    monkeypatch.setenv("LOGIN_WINDOW_MINUTES", "15")
-    reset_settings()
+    created = []
+    counter = {"n": 0}
 
-    from app.main import create_app
+    def _make(**overrides):
+        counter["n"] += 1
+        n = counter["n"]
+        upload_root = tmp_path / f"uploads_{n}"
+        upload_root.mkdir()
 
-    app = create_app()
-    with TestClient(app) as test_client:
+        env = {
+            "APP_ENV": "development",
+            "UPLOAD_ROOT": str(upload_root),
+            "DATABASE_URL": f"sqlite:///{(tmp_path / ('app_%d.sqlite3' % n)).as_posix()}",
+            "REQUIRE_STORAGE_MARKER": "false",
+            "SESSION_SECRET": "test-secret",
+            "ADMIN_USERNAME": ADMIN_USER,
+            "ADMIN_PASSWORD_HASH": hash_password(ADMIN_PASS),
+            "LOGIN_MAX_FAILURES": "5",
+            "LOGIN_WINDOW_MINUTES": "15",
+        }
+        env.update({k: str(v) for k, v in overrides.items()})
+        for key, value in env.items():
+            monkeypatch.setenv(key, value)
+        reset_settings()
+
+        from app.main import create_app
+
+        app = create_app()
+        test_client = TestClient(app)
         test_client.upload_root = upload_root
-        yield test_client
+        created.append((app, test_client))
+        return test_client
 
+    yield _make
+
+    for app, test_client in created:
+        test_client.close()
     if app_db._engine is not None:
         app_db._engine.dispose()
         app_db._engine = None
         app_db._SessionLocal = None
     reset_settings()
+
+
+@pytest.fixture()
+def client(client_factory):
+    return client_factory()
