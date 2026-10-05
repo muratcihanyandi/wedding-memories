@@ -9,9 +9,17 @@
 #      https://github.com/muratcihanyandi/wedding-memories repo'sundan
 #      scripts/generate_admin_hash.py calistirip cikan hash'i koyun
 #
-# Not: Bu dosya ghcr.io'daki hazir imaji kullanir; Pi uzerinde
-# derleme yapmaz. USB diskinizi CasaOS'ta mount edip yolunu
-# UPLOAD klasorunde guncellemeyi unutmayin.
+# ONEMLI (CasaOS uyumlulugu):
+#   - Named volume KULLANMAZ (CasaOS compose ithalati named volume'lari
+#     bozar -> "field Source must not be empty" hatasi). DB icin acik
+#     host yolu verilir: /DATA/AppData/... (CasaOS veri dizini).
+#   - ${DEGISKEN} sozdizimi KULLANMAZ - CasaOS'un ayristiricisi
+#     hepsini bos birakabilir. Degerler dogrudan yazilir.
+#   - Kurulumdan once Pi'de SSH ile klasiculeri hazirlayin:
+#       sudo mkdir -p /mnt/usb/wedding-uploads
+#       sudo touch /mnt/usb/wedding-uploads/.wedding-storage
+#       sudo mkdir -p /DATA/AppData/wedding-memories/db
+#       sudo chown -R 1000:1000 /mnt/usb/wedding-uploads /DATA/AppData/wedding-memories
 #
 # Port: 33464 = telefon tuslarinda WEDDING (933464).
 # ============================================================
@@ -40,9 +48,8 @@ services:
       # DEGISTIR: Pi'nin IP'si + port (dugun WiFi'indaki adresi)
       - PUBLIC_URL=http://RASPBERRY-PI-IP:33464
     volumes:
-      # DEGISTIR: USB diskizin CasaOS'taki yolu (mount edildikten sonra)
+      # DEGISTIR: USB diskizin CasaOS'taki yolu (mount edildikten sonra).
+      # Kaynak taraf ASLA bos birakilmamali - hata bunu boyle verir.
       - /mnt/usb/wedding-uploads:/app/data/uploads
-      - wedding-db:/app/data/db
-
-volumes:
-  wedding-db:
+      # CasaOS veri dizini - named volume degil, acik yol:
+      - /DATA/AppData/wedding-memories/db:/app/data/db

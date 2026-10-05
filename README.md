@@ -124,13 +124,16 @@ Pi'nizde **CasaOS** varsa derleme yapmadan hazır imajı çekebilirsiniz. İmaj 
 
 1. **USB diskizi CasaOS'ta mount edin** (CasaOS → Storage). Mount yolunu not alın (örn. `/mnt/usb` veya `/media/...`).
 
-2. Mount edilen diskte uygulama klasörünü hazırlayın (Pi'ye SSH ile):
+2. Mount edilen diskte uygulama klasörlerini hazırlayın (Pi'ye SSH ile):
 
    ```bash
    sudo mkdir -p /mnt/usb/wedding-uploads
    sudo touch /mnt/usb/wedding-uploads/.wedding-storage
-   sudo chown -R 1000:1000 /mnt/usb/wedding-uploads
+   sudo mkdir -p /DATA/AppData/wedding-memories/db
+   sudo chown -R 1000:1000 /mnt/usb/wedding-uploads /DATA/AppData/wedding-memories
    ```
+
+   > `/DATA`, CasaOS'un kendi veri dizinidir; SQLite veritabanı orada tutulur (USB diskte değil — disk yavaşsa DB yavaşlar).
 
 3. [docker-compose.casaos.yml](docker-compose.casaos.yml) dosyasını açın ve `DEGISTIR` etiketli değerleri doldurun:
    - `ADMIN_PASSWORD_HASH`: repo'yu klonlayıp `python3 scripts/generate_admin_hash.py` çalıştırın, çıkan `pbkdf2_sha256$...` değerini koyun
@@ -139,6 +142,8 @@ Pi'nizde **CasaOS** varsa derleme yapmadan hazır imajı çekebilirsiniz. İmaj 
    - volumes bölümündeki USB yolu
 
 4. CasaOS → **App Store → sağ üst "+" → Install from Docker-compose** (veya Docker Compose) seçeneğine düzenlediğiniz içeriği yapıştırıp kurun.
+
+   > ⚠️ **CasaOS uyumluluk notları:** (1) CasaOS'un compose ithalatı **named volume'ları bozar** (`"invalid mount config for type bind: field Source must not be empty"` hatası) — bu yüzden `docker-compose.casaos.yml` açık host yolları kullanır, ana `docker-compose.yml`'i CasaOS'a yapıştırmayın. (2) `${DEGISKEN}` sözdizimi CasaOS ayrıştırıcısında boş kalabilir; değerleri doğrudan yazın. (3) Volume satırlarında iki nokta öncesi kaynak tarafı asla boş kalmamalı.
 
 5. Kurulum bitince `http://<pi-ip>:33464` adresinden uygulamayı açın.
 
