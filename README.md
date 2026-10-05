@@ -136,10 +136,13 @@ Pi'nizde **CasaOS** varsa derleme yapmadan hazır imajı çekebilirsiniz. İmaj 
    > `/DATA`, CasaOS'un kendi veri dizinidir; SQLite veritabanı orada tutulur (USB diskte değil — disk yavaşsa DB yavaşlar).
 
 3. [docker-compose.casaos.yml](docker-compose.casaos.yml) dosyasını açın ve `DEGISTIR` etiketli değerleri doldurun:
+   - `DATABASE_URL`: PostgreSQL bağlantı dizisi — `KULLANICI`/`SIFRE` kısımlarını kendi sunucunuzun bilgileriyle değiştirin (tablalar otomatik oluşur; SQLite isterseniz yorumlu satırı kullanın)
    - `ADMIN_PASSWORD`: admin giriş şifresi — buraya ne yazarsanız o geçerli
    - `SESSION_SECRET`: rastgele uzun metin (`python3 -c "import secrets;print(secrets.token_hex(32))"`)
    - `PUBLIC_URL`: Pi'nin IP'si + port (örn. `http://192.168.1.50:33464`)
    - volumes bölümündeki USB yolu
+
+   > Repo dosyası public olduğu için gerçek şifreler placeholder olarak durur (`DEGISTIR`); kendi değerlerinizle doldurup öyle yapıştırın.
 
 4. CasaOS → **App Store → sağ üst "+" → Install from Docker-compose** (veya Docker Compose) seçeneğine düzenlediğiniz içeriği yapıştırıp kurun.
 

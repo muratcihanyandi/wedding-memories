@@ -33,10 +33,12 @@ services:
       - "33464:33464"
     environment:
       - APP_ENV=production
-      - DATABASE_URL=sqlite:////app/data/db/wedding.sqlite3
-      # PostgreSQL kullanmak isterseniz ustteki satiri silip asagiyi acin
-      # (sunucuda bos bir database acin; tablolar otomatik olusur):
-      # - DATABASE_URL=postgresql://KULLANICI:SIFRE@192.168.2.170:5432/wedding_memories
+      # PostgreSQL varsayilan (hazir sunucu: 192.168.2.170).
+      # DEGISTIR: KULLANICI ve SIFRE'yi kendi sunucunuzun bilgileriyle
+      # degistirin. Tablolar ilk acilista otomatik olusur.
+      - DATABASE_URL=postgresql://KULLANICI:SIFRE@192.168.2.170:5432/wedding_memories
+      # PostgreSQL yerine SQLite isterseniz ustteki satiri silip bunu acin:
+      # - DATABASE_URL=sqlite:////app/data/db/wedding.sqlite3
       - UPLOAD_ROOT=/app/data/uploads
       - FRONTEND_DIST=/app/static
       - REQUIRE_STORAGE_MARKER=true
