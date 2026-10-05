@@ -303,9 +303,6 @@ export default function Upload() {
           <CameraIcon size={34} />
           <span id="add-label">{items.length === 0 ? t.addFilesBtn : t.addMoreBtn}</span>
         </button>
-        <p className="text-soft center" style={{ marginTop: 10 }}>
-          {t.uploadOrderHint}
-        </p>
       </section>
 
       {anyActive && (

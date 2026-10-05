@@ -26,7 +26,6 @@ export const t = {
   retryBtn: "Tekrar Dene",
   removeBtn: "Kaldır",
   uploadWarning: "Yükleme sürerken bu sayfayı kapatmayın.",
-  uploadOrderHint: "Çoklu seçim yapabilirsin — fotoğraflar önce, videolar sırayla yüklenir.",
   filesCount: (n) => `${n} dosya`,
 
   // Başarı
