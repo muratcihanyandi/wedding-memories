@@ -1051,12 +1051,15 @@ textarea.input {
 
 /* ---------- Zarf girisi (intro) ---------- */
 
-/* Zarf kayarken sitenin yavasca belirmesi (perde acilirken sahne gorunur) */
-.public-shell {
+/* Kagit buyurken sitenin yavasca belirmesi (perde acilirken sahne gorunur) */
+.app-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   transition: opacity 1s ease 0.08s, transform 1s cubic-bezier(0.22, 0.8, 0.3, 1) 0.08s;
 }
 
-.public-shell.is-veiled {
+.app-root.is-veiled {
   opacity: 0;
   transform: translateY(20px);
 }
@@ -1079,13 +1082,11 @@ textarea.input {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  transition: transform 0.75s cubic-bezier(0.32, 0.72, 0.24, 1);
-  will-change: transform;
+  will-change: opacity;
 }
 
 .intro-overlay.is-dragging {
   cursor: grabbing;
-  transition: none;
 }
 
 .intro-stage {
@@ -1185,17 +1186,28 @@ textarea.input {
   vector-effect: non-scaling-stroke;
 }
 
-/* Zorfin icinden cikan kagit (davetiye) */
+/* Zorfin icinden cikan kagit (davetiye). Dis katman parmakla
+   yukari cekmeyi, ic katman acilma/buyume animasyonlarini tasir. */
 
-.env-paper {
+.env-paper-drag {
   position: absolute;
-  left: 50%;
+  left: 7%;
   bottom: 6%;
   width: 86%;
   height: 140%;
   z-index: 3;
+  transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.intro-overlay.is-dragging .env-paper-drag {
+  transition: none;
+}
+
+.env-paper {
+  position: absolute;
+  inset: 0;
   transform-origin: 50% 100%;
-  transform: translateX(-50%) scaleY(0.3);
+  transform: scaleY(0.3);
   border-radius: 10px;
   background: linear-gradient(180deg, #fffdf9, #fbf3e8);
   border: 1px solid rgba(198, 161, 91, 0.22);
@@ -1294,7 +1306,7 @@ textarea.input {
   animation: hint-float 1.9s ease-in-out infinite alternate;
 }
 
-/* Acilis animasyonlari (sirasiyla: flap -> kağit -> yazi -> sayaç) */
+/* Acilis animasyonlari (sirasiyla: flap -> kagit -> yazi -> sayac) */
 
 .intro-overlay.is-open .env-flap {
   animation: flap-swing 0.95s cubic-bezier(0.6, 0.02, 0.35, 1) 0.12s both;
@@ -1319,6 +1331,31 @@ textarea.input {
 .intro-overlay.is-open .paper-count-label,
 .intro-overlay.is-open .paper-count {
   animation: fade-up 0.55s ease 2.7s both;
+}
+
+/* Gecis: kagit yukari cekilince ortalanip buyur, ekranin kendisine doner */
+
+.intro-overlay.is-expanding .env-paper {
+  animation: paper-expand 1.35s cubic-bezier(0.25, 0.65, 0.2, 1) both;
+  transform-origin: 50% 50%;
+}
+
+.intro-overlay.is-expanding .env-paper > * {
+  animation: fade-out-soft 0.55s ease 0.25s both;
+}
+
+.intro-overlay.is-expanding .env-back,
+.intro-overlay.is-expanding .env-front,
+.intro-overlay.is-expanding .env-flap,
+.intro-overlay.is-expanding .intro-hint {
+  animation: fade-out-soft 0.6s ease both;
+}
+
+/* kagit ekran kaplarken overlay tamamen saydamlasir, altinda site belirir */
+.intro-overlay.is-expanding {
+  animation: overlay-fade-out 0.9s ease 0.55s both;
+  pointer-events: none;
+  cursor: default;
 }
 
 @keyframes intro-enter {
@@ -1351,10 +1388,33 @@ textarea.input {
 
 @keyframes paper-rise {
   from {
-    transform: translateX(-50%) translateY(0) scaleY(0.3);
+    transform: scaleY(0.3);
   }
   to {
-    transform: translateX(-50%) translateY(-30%) scaleY(1);
+    transform: translateY(-30%) scaleY(1);
+  }
+}
+
+@keyframes paper-expand {
+  from {
+    transform: translateY(-30%) translateY(0px) scale(1);
+    border-radius: 10px;
+  }
+  to {
+    transform: translateY(-30%) translateY(var(--expand-shift-y, 0px)) scale(var(--expand-scale, 3));
+    border-radius: 0;
+  }
+}
+
+@keyframes fade-out-soft {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes overlay-fade-out {
+  to {
+    opacity: 0;
   }
 }
 
