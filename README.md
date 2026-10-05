@@ -12,18 +12,19 @@ Düğünlerde QR kodu ile çalışan, misafirlerin fotoğraf ve videolarını ya
 2. [Mimari ve Teknoloji Seçimi](#mimari-ve-teknoloji-seçimi)
 3. [Gereksinimler](#gereksinimler)
 4. [Hızlı Kurulum (Raspberry Pi)](#hızlı-kurulum-raspberry-pi)
-5. [USB Depolama Kurulumu](#usb-depolama-kurulumu)
-6. [.env Ayarları](#env-ayarları)
-7. [Admin Hesabı Oluşturma](#admin-hesabı-oluşturma)
-8. [Başlatma / Durdurma / Loglar](#başlatma--durdurma--loglar)
-9. [QR Kod Kullanımı](#qr-kod-kullanımı)
-10. [Yerel Ağ ve İnternetsiz Kullanım](#yerel-ağ-ve-internetsiz-kullanım)
-11. [Domain Bağlama ve HTTPS](#domain-bağlama-ve-https)
-12. [Backup](#backup)
-13. [Güncelleme](#güncelleme)
-14. [Geliştirme Ortamı](#geliştirme-ortamı)
-15. [Testler](#testler)
-16. [Sorun Giderme](#sorun-giderme)
+5. [CasaOS Kurulumu (ghcr.io)](#casaos-kurulumu-ghcrio)
+6. [USB Depolama Kurulumu](#usb-depolama-kurulumu)
+7. [.env Ayarları](#env-ayarları)
+8. [Admin Hesabı Oluşturma](#admin-hesabı-oluşturma)
+9. [Başlatma / Durdurma / Loglar](#başlatma--durdurma--loglar)
+10. [QR Kod Kullanımı](#qr-kod-kullanımı)
+11. [Yerel Ağ ve İnternetsiz Kullanım](#yerel-ağ-ve-internetsiz-kullanım)
+12. [Domain Bağlama ve HTTPS](#domain-bağlama-ve-https)
+13. [Backup](#backup)
+14. [Güncelleme](#güncelleme)
+15. [Geliştirme Ortamı](#geliştirme-ortamı)
+16. [Testler](#testler)
+17. [Sorun Giderme](#sorun-giderme)
 
 ---
 
@@ -113,6 +114,39 @@ docker compose up -d --build
 Uygulama hazır: `http://<pi-ip-adresi>` (varsayılan port 80).
 
 > İlk kurulumda `.env` dosyası olmadan da container ayağa kalkar, ancak **admin girişi kapalıdır** ve loglarda kurulum uyarısı görünür.
+
+## CasaOS Kurulumu (ghcr.io)
+
+Pi'nizde **CasaOS** varsa derleme yapmadan hazır imajı çekebilirsiniz. İmaj GitHub Actions ile otomatik olarak `ghcr.io/muratcihanyandi/wedding-memories` adresine yayınlanır (linux/arm64).
+
+1. **USB diskizi CasaOS'ta mount edin** (CasaOS → Storage). Mount yolunu not alın (örn. `/mnt/usb` veya `/media/...`).
+
+2. Mount edilen diskte uygulama klasörünü hazırlayın (Pi'ye SSH ile):
+
+   ```bash
+   sudo mkdir -p /mnt/usb/wedding-uploads
+   sudo touch /mnt/usb/wedding-uploads/.wedding-storage
+   sudo chown -R 1000:1000 /mnt/usb/wedding-uploads
+   ```
+
+3. [docker-compose.casaos.yml](docker-compose.casaos.yml) dosyasını açın ve `DEGISTIR` etiketli değerleri doldurun:
+   - `ADMIN_PASSWORD_HASH`: repo'yu klonlayıp `python3 scripts/generate_admin_hash.py` çalıştırın, çıkan `pbkdf2_sha256$...` değerini koyun
+   - `SESSION_SECRET`: rastgele uzun metin (`python3 -c "import secrets;print(secrets.token_hex(32))"`)
+   - `PUBLIC_URL`: Pi'nin IP'si (örn. `http://192.168.1.50`)
+   - volumes bölümündeki USB yolu
+
+4. CasaOS → **App Store → sağ üst "+" → Install from Docker-compose** (veya Docker Compose) seçeneğine düzenlediğiniz içeriği yapıştırıp kurun.
+
+5. Kurulum bitince `http://<pi-ip>` adresinden uygulamayı açın.
+
+**Güncelleme (CasaOS):** Yeni imaj çıktığında container'ı silip aynı compose ile yeniden kurun (volumes sayesinde veriler korunur), veya SSH ile:
+
+```bash
+docker pull ghcr.io/muratcihanyandi/wedding-memories:latest
+docker rm -f wedding-app   # CasaOS tekrar kuracak / compose up -d
+```
+
+> İmaj gizli (private) yapılırsa CasaOS çekemez; public kalması önerilir. Uygulama sırları imajın içinde değil, compose içindeki env değerlerindedir.
 
 ## USB Depolama Kurulumu
 

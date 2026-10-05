@@ -1,7 +1,9 @@
 services:
   app:
     build: .
-    image: wedding-memories:latest
+    # GitHub Actions bu imaji ghcr.io'a yayinlar; Pi uzerinde derleme
+    # yapmak istemiyorsaniz CasaOS dosyasini kullanin (docker-compose.casaos.yml)
+    image: ghcr.io/muratcihanyandi/wedding-memories:latest
     container_name: wedding-app
     restart: unless-stopped
     env_file:

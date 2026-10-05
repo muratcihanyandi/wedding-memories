@@ -1,0 +1,43 @@
+# ============================================================
+# CasaOS icin Wedding Memories kurulum dosyasi
+#
+# Kullanim:
+#   1) Asagidaki DEGISTIR etiketli degerleri kendinize gore duzenleyin
+#   2) CasaOS -> App Store -> sag ust "+" -> "DockerCompose / Command"
+#      (veya "Install from Docker-compose") secenegine bu icerigi yapistirin
+#   3) ADMIN_PASSWORD_HASH icin once
+#      https://github.com/muratcihanyandi/wedding-memories repo'sundan
+#      scripts/generate_admin_hash.py calistirip cikan hash'i koyun
+#
+# Not: Bu dosya ghcr.io'daki hazir imaji kullanir; Pi uzerinde
+# derleme yapmaz. USB diskinizi CasaOS'ta mount edip yolunu
+# UPLOAD klasorunde guncellemeyi unutmayin.
+# ============================================================
+
+services:
+  wedding-memories:
+    image: ghcr.io/muratcihanyandi/wedding-memories:latest
+    container_name: wedding-app
+    restart: unless-stopped
+    ports:
+      - "80:8000"
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=sqlite:////app/data/db/wedding.sqlite3
+      - UPLOAD_ROOT=/app/data/uploads
+      - FRONTEND_DIST=/app/static
+      - REQUIRE_STORAGE_MARKER=true
+      - ADMIN_USERNAME=admin
+      # DEGISTIR: python scripts/generate_admin_hash.py ciktisi
+      - ADMIN_PASSWORD_HASH=DEGISTIR-PBKDF2-HASH
+      # DEGISTIR: rastgele uzun metin, or: python -c "import secrets;print(secrets.token_hex(32))"
+      - SESSION_SECRET=DEGISTIR-RASTGELE-METIN
+      # DEGISTIR: Pi'nin IP'si (dugun WiFi'indaki adresi)
+      - PUBLIC_URL=http://RASPBERRY-PI-IP
+    volumes:
+      # DEGISTIR: USB diskizin CasaOS'taki yolu (mount edildikten sonra)
+      - /mnt/usb/wedding-uploads:/app/data/uploads
+      - wedding-db:/app/data/db
+
+volumes:
+  wedding-db:
