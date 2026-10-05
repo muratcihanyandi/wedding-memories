@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { apiFetch } from "../lib/api.js";
 import { t } from "../texts.js";
 import { HeartIcon } from "../components/icons.jsx";
+import EnvelopeIntro from "../components/EnvelopeIntro.jsx";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -12,6 +13,13 @@ export default function Home() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [nameExists, setNameExists] = useState(null); // girilen isim
+  const [introDone, setIntroDone] = useState(false);
+  const nameInputRef = useRef(null);
+
+  // Zarf cekildikten sonra isim alani odaklansin (mobilde klavye intro sirasinda acilmasin)
+  useEffect(() => {
+    if (introDone) nameInputRef.current?.focus();
+  }, [introDone]);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,53 +98,56 @@ export default function Home() {
   }
 
   return (
-    <main className="public-shell">
-      <header className="public-hero">
-        <span className="heart" aria-hidden="true">
-          <HeartIcon size={44} />
-        </span>
-        <span className="eyebrow">Wedding Memories</span>
-        <h1 className="serif">{weddingTitle}</h1>
-        <p className="subtitle">{welcomeText}</p>
-      </header>
+    <>
+      {!introDone && <EnvelopeIntro onDone={() => setIntroDone(true)} />}
+      <main className="public-shell">
+        <header className="public-hero">
+          <span className="heart" aria-hidden="true">
+            <HeartIcon size={44} />
+          </span>
+          <span className="eyebrow">Wedding Memories</span>
+          <h1 className="serif">{weddingTitle}</h1>
+          <p className="subtitle">{welcomeText}</p>
+        </header>
 
-      <section className="card" style={{ padding: "26px 22px" }}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitName();
-          }}
-        >
-          <div className="field">
-            <label htmlFor="name">{t.namePrompt}</label>
-            <input
-              id="name"
-              className="input"
-              type="text"
-              inputMode="text"
-              autoComplete="given-name"
-              maxLength={64}
-              placeholder={t.namePlaceholder}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={busy}
-              autoFocus
-            />
-          </div>
-          {error && (
-            <p className="notice notice-error" style={{ marginTop: 12 }} role="alert">
-              {error}
-            </p>
-          )}
-          <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 16 }} disabled={busy}>
-            {busy ? t.loading : t.continueBtn}
-          </button>
-        </form>
-      </section>
+        <section className="card" style={{ padding: "26px 22px" }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitName();
+            }}
+          >
+            <div className="field">
+              <label htmlFor="name">{t.namePrompt}</label>
+              <input
+                id="name"
+                ref={nameInputRef}
+                className="input"
+                type="text"
+                inputMode="text"
+                autoComplete="given-name"
+                maxLength={64}
+                placeholder={t.namePlaceholder}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={busy}
+              />
+            </div>
+            {error && (
+              <p className="notice notice-error" style={{ marginTop: 12 }} role="alert">
+                {error}
+              </p>
+            )}
+            <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 16 }} disabled={busy}>
+              {busy ? t.loading : t.continueBtn}
+            </button>
+          </form>
+        </section>
 
-      <p className="text-soft center" style={{ marginTop: 4 }}>
-        Fotoğraf ve videoların yalnızca çift tarafından görüntülenir. 🤍
-      </p>
-    </main>
+        <p className="text-soft center" style={{ marginTop: 4 }}>
+          Fotoğraf ve videoların yalnızca çift tarafından görüntülenir. 🤍
+        </p>
+      </main>
+    </>
   );
 }

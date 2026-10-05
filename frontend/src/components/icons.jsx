@@ -56,6 +56,24 @@ export function VideoIcon({ size = 24 }) {
   );
 }
 
+export function ChevronUpIcon({ size = 24 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 14.5 L12 7.5 L19 14.5" />
+    </svg>
+  );
+}
+
 export function CheckIcon({ size = 24 }) {
   return (
     <svg

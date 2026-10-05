@@ -2,6 +2,7 @@
    Wedding Memories - Pastel Design System
    Palet: krem, blush, pudra, soft peach, champagne, hafif gold
    Tipografi: Cormorant Garamond (serif, baslik) + Nunito Sans (govde)
+              + Great Vibes (el yazisi, davetiye)
    ============================================================ */
 
 :root {
@@ -36,6 +37,7 @@
 
   --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-sans: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-script: "Great Vibes", "Cormorant Garamond", "Segoe Script", cursive;
 }
 
 * {
@@ -1045,6 +1047,352 @@ textarea.input {
 
 .center {
   text-align: center;
+}
+
+/* ---------- Zarf girisi (intro) ---------- */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(1000px 540px at 50% 6%, #fdf4f0, rgba(253, 244, 240, 0) 70%),
+    radial-gradient(760px 520px at 88% 98%, rgba(234, 217, 194, 0.45), rgba(234, 217, 194, 0) 65%),
+    linear-gradient(180deg, #f8e9e4, #f2ded8);
+  box-shadow: 0 22px 48px rgba(120, 88, 80, 0.25);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.6s cubic-bezier(0.55, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.intro-overlay.is-dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.intro-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: intro-enter 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* Zarf govdesi */
+
+.envelope {
+  position: relative;
+  width: min(76vw, 330px);
+  aspect-ratio: 10 / 7;
+  perspective: 1100px;
+}
+
+.env-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(170deg, #f0d5cf, #e5c3bc);
+  box-shadow: 0 24px 50px rgba(160, 110, 100, 0.28);
+}
+
+/* Ust kapak (flap) */
+
+.env-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62%;
+  transform-origin: 50% 0%;
+  transform-style: preserve-3d;
+  z-index: 5;
+}
+
+.env-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.env-face-out {
+  background: linear-gradient(175deg, #f6ded8, #eecdc6);
+}
+
+.env-face-in {
+  transform: rotateX(180deg);
+  background: linear-gradient(175deg, #f9efe9, #f3e0da);
+}
+
+.env-seal {
+  position: absolute;
+  top: calc(100% - 25px);
+  left: 50%;
+  transform: translateX(-50%) translateZ(2px);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #dcb57f, #bb8f50 55%, #a67a3e);
+  box-shadow: 0 4px 10px rgba(140, 100, 50, 0.35), inset 0 1px 3px rgba(255, 240, 210, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f8ecd4;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* On yuz (V yakali cephe) */
+
+.env-front {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: 12px;
+  background: linear-gradient(175deg, #f4d9d3, #eccbc4);
+  clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+}
+
+.env-fold {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.env-fold path {
+  fill: none;
+  stroke: rgba(163, 108, 100, 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Zorfin icinden cikan kagit (davetiye) */
+
+.env-paper {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 86%;
+  height: 140%;
+  z-index: 3;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) scaleY(0.3);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fffdf9, #fbf3e8);
+  border: 1px solid rgba(198, 161, 91, 0.22);
+  box-shadow: 0 18px 42px rgba(150, 110, 95, 0.3);
+  padding: 24px 18px 0;
+  text-align: center;
+}
+
+.paper-heart {
+  display: block;
+  width: 20px;
+  margin: 0 auto 8px;
+  color: var(--gold);
+  opacity: 0;
+}
+
+.paper-script {
+  font-family: var(--font-script);
+  font-size: clamp(1.5rem, 7.5vw, 2.3rem);
+  color: #8d4f57;
+  line-height: 1.3;
+  white-space: nowrap;
+  clip-path: inset(-40% 102% -40% -6%);
+}
+
+.paper-divider {
+  display: block;
+  width: 54px;
+  height: 1.5px;
+  margin: 10px auto 14px;
+  background: var(--gold-soft);
+  opacity: 0;
+}
+
+.paper-count-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0;
+}
+
+.paper-count {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+}
+
+.cd-num {
+  display: inline-block;
+  min-width: 1.15em;
+  text-align: center;
+}
+
+.cd-married {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #8d4f57;
+}
+
+/* Cekme ipucu */
+
+.intro-hint {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.intro-hint svg {
+  width: 22px;
+  height: 22px;
+  color: var(--gold);
+}
+
+.intro-overlay.show-hint .intro-hint {
+  opacity: 1;
+  transform: none;
+}
+
+.intro-overlay.show-hint .intro-hint svg {
+  animation: hint-float 1.9s ease-in-out infinite alternate;
+}
+
+/* Acilis animasyonlari (sirasiyla: flap -> kağit -> yazi -> sayaç) */
+
+.intro-overlay.is-open .env-flap {
+  animation: flap-swing 0.95s cubic-bezier(0.6, 0.02, 0.35, 1) 0.12s both;
+}
+
+.intro-overlay.is-open .env-paper {
+  animation: paper-rise 1.2s cubic-bezier(0.22, 0.85, 0.3, 1) 0.55s both;
+}
+
+.intro-overlay.is-open .paper-heart {
+  animation: fade-in 0.5s ease 1.6s both;
+}
+
+.intro-overlay.is-open .paper-script {
+  animation: write-in 1.15s cubic-bezier(0.3, 0.6, 0.4, 1) 1.75s both;
+}
+
+.intro-overlay.is-open .paper-divider {
+  animation: fade-in 0.5s ease 2.5s both;
+}
+
+.intro-overlay.is-open .paper-count-label,
+.intro-overlay.is-open .paper-count {
+  animation: fade-up 0.55s ease 2.7s both;
+}
+
+@keyframes intro-enter {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes flap-swing {
+  0% {
+    transform: rotateX(0deg);
+    z-index: 5;
+  }
+  49.9% {
+    z-index: 5;
+  }
+  50% {
+    z-index: 1;
+  }
+  100% {
+    transform: rotateX(-168deg);
+    z-index: 1;
+  }
+}
+
+@keyframes paper-rise {
+  from {
+    transform: translateX(-50%) translateY(0) scaleY(0.3);
+  }
+  to {
+    transform: translateX(-50%) translateY(-30%) scaleY(1);
+  }
+}
+
+@keyframes write-in {
+  to {
+    clip-path: inset(-40% -6% -40% -6%);
+  }
+}
+
+@keyframes hint-float {
+  from {
+    transform: translateY(3px);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+@media (max-height: 620px) {
+  .envelope {
+    width: min(64vw, 270px);
+  }
+
+  .intro-hint {
+    margin-top: 30px;
+  }
+}
+
+@media (max-height: 520px) {
+  .envelope {
+    width: min(52vw, 215px);
+  }
+
+  .env-paper {
+    padding: 14px 16px 0;
+  }
+
+  .paper-script {
+    font-size: 1.65rem;
+  }
+
+  .paper-count {
+    font-size: 1.05rem;
+  }
+
+  .intro-hint {
+    margin-top: 18px;
+  }
 }
 
 /* ---------- Animasyonlar ---------- */

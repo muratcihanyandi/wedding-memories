@@ -15,6 +15,13 @@ export const t = {
   differentPersonBtn: "Farklı bir kişiyim",
   guestFallback: "Misafir",
 
+  // Zarf girisi (intro)
+  introHeadline: "Evleniyoruz...",
+  introCountdownLabel: "25 Ekim'e kalan süre",
+  introDayUnit: "gün",
+  introMarried: "Evlendik 🤍",
+  introPullHint: "Zarfı yukarı çekin",
+
   // Yükleme
   hello: (name) => `Merhaba ${name}! 🤍`,
   addFilesBtn: "+ Fotoğraf veya Video Ekle",
