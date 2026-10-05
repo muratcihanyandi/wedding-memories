@@ -35,6 +35,7 @@ class Settings:
     app_env: str
     database_url: str
     upload_root: Path
+    frontend_dist: Path | None
     max_upload_size_mb: int
     admin_username: str
     admin_password_hash: str
@@ -58,12 +59,14 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         data_dir = Path("./data")
+        frontend_dist = _env_str("FRONTEND_DIST", "")
         return cls(
             app_env=_env_str("APP_ENV", "production"),
             database_url=_env_str(
                 "DATABASE_URL", f"sqlite:///{(data_dir / 'db' / 'wedding.sqlite3').as_posix()}"
             ),
             upload_root=Path(_env_str("UPLOAD_ROOT", str(data_dir / "uploads"))),
+            frontend_dist=Path(frontend_dist) if frontend_dist else None,
             max_upload_size_mb=_env_int("MAX_UPLOAD_SIZE_MB", 2048),
             admin_username=_env_str("ADMIN_USERNAME", "admin"),
             admin_password_hash=_env_str("ADMIN_PASSWORD_HASH", ""),
