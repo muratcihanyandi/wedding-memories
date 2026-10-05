@@ -1,0 +1,24 @@
+# Dependencies / build
+node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Runtime data (uploads, sqlite db, logs)
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Secrets - asla commit etme
+.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
