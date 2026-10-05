@@ -41,6 +41,7 @@ class Settings:
     session_secret: str
     public_url: str
     cookie_secure: bool
+    trust_proxy: bool
     require_storage_marker: bool
     login_max_failures: int
     login_window_minutes: int
@@ -69,6 +70,7 @@ class Settings:
             session_secret=_env_str("SESSION_SECRET", ""),
             public_url=_env_str("PUBLIC_URL", ""),
             cookie_secure=_env_bool("COOKIE_SECURE", False),
+            trust_proxy=_env_bool("TRUST_PROXY", False),
             require_storage_marker=_env_bool("REQUIRE_STORAGE_MARKER", True),
             login_max_failures=_env_int("LOGIN_MAX_FAILURES", 5),
             login_window_minutes=_env_int("LOGIN_WINDOW_MINUTES", 15),

@@ -53,12 +53,15 @@ def sanitize_display_name(raw: str) -> str:
 
 
 def unique_folder_name(base: str, existing: set[str]) -> str:
-    """Cakisma durumunda Erhan -> Erhan-2 -> Erhan-3."""
-    if base not in existing:
+    """Cakisma durumunda Erhan -> Erhan-2 -> Erhan-3.
+    Karsilastirma buyuk/kucuk harf bagimsizdir (Windows/macOS dosya
+    sistemleri case-insensitive oldugu icin)."""
+    taken = {name.casefold() for name in existing}
+    if base.casefold() not in taken:
         return base
     for i in range(2, 1000):
         candidate = f"{base}-{i}"
-        if candidate not in existing:
+        if candidate.casefold() not in taken:
             return candidate
     raise ValueError("Klasör adı tükenemedi")  # pragma: no cover
 
