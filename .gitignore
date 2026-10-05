@@ -22,3 +22,6 @@ data/
 Thumbs.db
 .idea/
 .vscode/
+
+# Test/yardimci arsivler
+*.zip
