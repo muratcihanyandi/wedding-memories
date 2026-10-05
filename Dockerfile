@@ -40,10 +40,12 @@ RUN useradd --create-home --uid 1000 appuser \
 
 USER appuser
 
-EXPOSE 8000
+# 33464 = telefon tuslarinda WEDDING (933464) - bilinen hicbir servis
+# bu portu kullanmaz; 80/8000 gibi yaygin port cakismalarinin onune gecer.
+EXPOSE 33464
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request,sys; \
-sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"
+sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:33464/api/health', timeout=4).status == 200 else 1)"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

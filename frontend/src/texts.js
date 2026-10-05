@@ -33,6 +33,13 @@ export const t = {
   successThanks: (name) => `${name}, anılarını bizimle paylaştığın için teşekkür ederiz.`,
   addMoreLink: "Başka Anı Ekle",
 
+  // Albüm (/album)
+  albumTitle: "Düğün Anıları",
+  albumAll: "Tümü",
+  albumEmpty: "Henüz yüklenen anı yok. 🤍",
+  albumZipAll: "Tümünü ZIP indir",
+  uploadedBy: (name) => name,
+
   // Genel
   loading: "Yükleniyor...",
   connectionError: "Bağlantı kurulamadı. Wi-Fi bağlantınızı kontrol edip tekrar deneyin.",
@@ -91,7 +98,7 @@ export const t = {
   settingsUploadText: "Yükleme Sayfası Mesajı",
   settingsSuccessText: "Başarı Mesajı",
   settingsPublicUrl: "QR Kod Adresi (PUBLIC_URL)",
-  settingsPublicUrlHint: "Örn. http://192.168.1.50 veya https://site.com",
+  settingsPublicUrlHint: "Örn. http://192.168.1.50:33464 veya https://site.com",
   settingsSave: "Kaydet",
   settingsSaved: "Ayarlar kaydedildi ✓",
   qrTitle: "QR Kod",

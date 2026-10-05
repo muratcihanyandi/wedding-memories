@@ -12,6 +12,8 @@
 # Not: Bu dosya ghcr.io'daki hazir imaji kullanir; Pi uzerinde
 # derleme yapmaz. USB diskinizi CasaOS'ta mount edip yolunu
 # UPLOAD klasorunde guncellemeyi unutmayin.
+#
+# Port: 33464 = telefon tuslarinda WEDDING (933464).
 # ============================================================
 
 services:
@@ -20,10 +22,13 @@ services:
     container_name: wedding-app
     restart: unless-stopped
     ports:
-      - "80:8000"
+      - "33464:33464"
     environment:
       - APP_ENV=production
       - DATABASE_URL=sqlite:////app/data/db/wedding.sqlite3
+      # PostgreSQL kullanmak isterseniz ustteki satiri silip asagiyi acin
+      # (sunucuda bos bir database acin; tablolar otomatik olusur):
+      # - DATABASE_URL=postgresql://KULLANICI:SIFRE@192.168.2.170:5432/wedding_memories
       - UPLOAD_ROOT=/app/data/uploads
       - FRONTEND_DIST=/app/static
       - REQUIRE_STORAGE_MARKER=true
@@ -32,8 +37,8 @@ services:
       - ADMIN_PASSWORD_HASH=DEGISTIR-PBKDF2-HASH
       # DEGISTIR: rastgele uzun metin, or: python -c "import secrets;print(secrets.token_hex(32))"
       - SESSION_SECRET=DEGISTIR-RASTGELE-METIN
-      # DEGISTIR: Pi'nin IP'si (dugun WiFi'indaki adresi)
-      - PUBLIC_URL=http://RASPBERRY-PI-IP
+      # DEGISTIR: Pi'nin IP'si + port (dugun WiFi'indaki adresi)
+      - PUBLIC_URL=http://RASPBERRY-PI-IP:33464
     volumes:
       # DEGISTIR: USB diskizin CasaOS'taki yolu (mount edildikten sonra)
       - /mnt/usb/wedding-uploads:/app/data/uploads

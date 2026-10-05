@@ -556,3 +556,69 @@ def backup_database(admin: AdminSession = Depends(get_admin_session)):
         filename=filename,
         background=BackgroundTask(_remove),
     )
+
+
+# ---------- /album : tum anilarin sade galerisi ----------
+
+album_router = APIRouter(prefix="/api/album", tags=["album"])
+
+
+@album_router.get("/files")
+def album_files(admin: AdminSession = Depends(get_admin_session), db: Session = Depends(get_db)):
+    """Tum kullanicilarin tum dosyalari - yukleyen adiyla birlikte,
+    en yeniden eskiye sirali. Sadece admin oturumu ile erisilir."""
+    settings = get_settings()
+    rows = (
+        db.query(Upload, User.display_name, User.folder_name)
+        .join(User, Upload.user_id == User.id)
+        .order_by(Upload.created_at.desc())
+        .all()
+    )
+    return {
+        "total": len(rows),
+        "files": [
+            {
+                **_file_dict(settings, upload),
+                "uploader": display_name,
+                "folder_name": folder_name,
+            }
+            for upload, display_name, folder_name in rows
+        ],
+    }
+
+
+@album_router.get("/zip")
+def album_zip(admin: AdminSession = Depends(get_admin_session), db: Session = Depends(get_db)):
+    """Tum anilari tek ZIP'te stream eder - klasor adi onekli."""
+    settings = get_settings()
+    rows = (
+        db.query(Upload, User.folder_name)
+        .join(User, Upload.user_id == User.id)
+        .order_by(Upload.user_id, Upload.id)
+        .all()
+    )
+
+    entries = []
+    used_names: set[str] = set()
+    for record, folder_name in rows:
+        path = _safe_upload_path(settings, record)
+        if path is None or not path.is_file():
+            continue
+        arcname = f"{folder_name}/{record.original_filename or record.stored_filename}"
+        base = arcname
+        i = 2
+        while arcname in used_names:
+            stem, dot, ext = base.rpartition(".")
+            arcname = f"{stem}_{i}.{ext}" if dot else f"{base}_{i}"
+            i += 1
+        used_names.add(arcname)
+        entries.append((path, arcname))
+
+    if not entries:
+        raise HTTPException(status_code=404, detail="Henüz indirilecek dosya yok.")
+
+    return StreamingResponse(
+        stream_zip(entries),
+        media_type="application/zip",
+        headers={"Content-Disposition": 'attachment; filename="dugun-anilari.zip"'},
+    )

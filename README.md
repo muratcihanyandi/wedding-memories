@@ -50,6 +50,7 @@ Yükleme (progress bar)                Görüntüle · İndir · ZIP · Sil
 - Aynı isim girilirse "aynı kişiyim / farklı bir kişiyim" seçeneği sunulur; farklı kişiler `Elif-2` şeklinde ayrı klasör alır.
 - Dosyalar **hiçbir zaman RAM'e tam alınmadan**, 1 MB'lık parçalarla diske akıtılır (streaming). 1 GB+ düğün videoları güvenle yüklenebilir.
 - Yükleme yarıda kesilirse geçici dosya temizlenir, veritabanına kayıt oluşmaz.
+- **`/album`** sayfası: admin girişiyle erişilen, tüm katılımcıların yüklediği fotoğraf/videoların yükleme sahibi adıyla listelendiği sade galeri — yükleylene göre filtre, tıklayınca büyütme ve **"Tümünü ZIP indir"** özelliği içerir (ayarlar/istatistik yoktur).
 
 ## Mimari ve Teknoloji Seçimi
 
@@ -111,7 +112,9 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 docker compose up -d --build
 ```
 
-Uygulama hazır: `http://<pi-ip-adresi>` (varsayılan port 80).
+Uygulama hazır: `http://<pi-ip-adresi>:33464`.
+
+> **Port:** Uygulama `33464` portunu kullanır (telefon tuşlarında WEDDING = 933464'nün son 5 hanesi). 80/8000 gibi çakışmaya açık yaygın portlardan kaçınır; değiştirmek isterseniz `.env`'de `APP_PORT` ayarlayın.
 
 > İlk kurulumda `.env` dosyası olmadan da container ayağa kalkar, ancak **admin girişi kapalıdır** ve loglarda kurulum uyarısı görünür.
 
@@ -137,7 +140,7 @@ Pi'nizde **CasaOS** varsa derleme yapmadan hazır imajı çekebilirsiniz. İmaj 
 
 4. CasaOS → **App Store → sağ üst "+" → Install from Docker-compose** (veya Docker Compose) seçeneğine düzenlediğiniz içeriği yapıştırıp kurun.
 
-5. Kurulum bitince `http://<pi-ip>` adresinden uygulamayı açın.
+5. Kurulum bitince `http://<pi-ip>:33464` adresinden uygulamayı açın.
 
 **Güncelleme (CasaOS):** Yeni imaj çıktığında container'ı silip aynı compose ile yeniden kurun (volumes sayesinde veriler korunur), veya SSH ile:
 
@@ -182,21 +185,45 @@ Bu betik mount kontrolü yapar, `wedding-uploads` klasörünü açar, **`.weddin
 | Değişken | Açıklama | Varsayılan |
 |---|---|---|
 | `APP_ENV` | `production` / `development` | `production` |
-| `DATABASE_URL` | SQLite yolu; PostgreSQL için `postgresql+psycopg://...` | container içi SQLite |
+| `DATABASE_URL` | SQLite varsayılan; PostgreSQL için `postgresql://kullanıcı:şifre@sunucu:5432/veritabanı` | container içi SQLite |
 | `UPLOAD_ROOT_HOST` | Pi üzerindeki upload klasörü (bind mount kaynağı) | `/mnt/usb/wedding-uploads` |
 | `MAX_UPLOAD_SIZE_MB` | Dosya başına üst sınır | `2048` (2 GB) |
 | `ADMIN_USERNAME` | Admin kullanıcı adı | `admin` |
 | `ADMIN_PASSWORD_HASH` | `scripts/generate_admin_hash.py` çıktısı | (boş = admin kapalı) |
 | `SESSION_SECRET` | Rastgele uzun gizli anahtar | — |
-| `PUBLIC_URL` | QR kodun işaret edeceği adres (`http://192.168.x.x` veya `https://site.com`) | boş |
+| `PUBLIC_URL` | QR kodun işaret edeceği adres (`http://192.168.x.x:33464` veya `https://site.com`) | boş |
 | `COOKIE_SECURE` | HTTPS kullanırken `true` yapın | `false` |
 | `TRUST_PROXY` | nginx profili arkasında `true` yapın | `false` |
 | `REQUIRE_STORAGE_MARKER` | USB mount kontrolü (üretimde `true` kalsın) | `true` |
 | `LOGIN_MAX_FAILURES` | 15 dakikada izin verilen hatalı admin girişi | `5` |
 | `UPLOAD_MAX_PER_HOUR` | IP başına saatlik dosya limiti | `120` |
-| `APP_PORT` | Uygulamanın yayınlanacağı host portu | `80` |
+| `APP_PORT` | Uygulamanın yayınlanacağı host portu | `33464` |
 
 Secret içeren `.env` dosyası `.gitignore`'dadır; **asla commit etmeyin**.
+
+## PostgreSQL Kullanımı
+
+Varsayılan olarak SQLite kullanılır (sıfır bakım). Kendi PostgreSQL sunucunuzu kullanmak isterseniz:
+
+1. Sunucuda boş bir veritabanı oluşturun (tablolar uygulama ilk açılışta kendiliğinden oluşur):
+
+```sql
+CREATE DATABASE wedding_memories;
+```
+
+2. `.env` içinde `DATABASE_URL` tanımlayın — standart bağlantı dizisi yeterli, uygulama otomatik olarak psycopg sürüsüne çevirir:
+
+```
+DATABASE_URL=postgresql://kullanici:sifre@192.168.2.170:5432/wedding_memories
+```
+
+3. `docker compose up -d` ile yeniden başlatın.
+
+Notlar:
+- İmajda PostgreSQL sürücüsü (psycopg) hazır bulunur; ek kurulum gerekmez.
+- CasaOS kullanıyorsanız `docker-compose.casaos.yml` içindeki yorumlu `DATABASE_URL` satırını açıp doldurun (SQLite satırını silin).
+- SQLite'a özel özellikler PostgreSQL'de farklı çalışır: **veritabanı yedeği indirme** (Ayarlar → Bakım) yalnızca SQLite kurulumlarında kullanılabilir; PostgreSQL'de `pg_dump` kullanın. Diğer her şey aynıdır.
+- Bağlantı dizisindeki şifre `.env`'de tutulur; repoya asla yazılmaz.
 
 ## Admin Hesabı Oluşturma
 
@@ -232,7 +259,7 @@ Loglar okunabilir düzendedir:
 
 ## QR Kod Kullanımı
 
-1. `.env` içinde `PUBLIC_URL`'i ayarlayın (örn. `http://192.168.1.50`) ve `docker compose up -d` ile yeniden yükleyin — **veya** admin panelinden *Ayarlar → QR Kod Adresi* alanını güncelleyin (yeniden başlatma gerekmez).
+1. `.env` içinde `PUBLIC_URL`'i ayarlayın (örn. `http://192.168.1.50:33464`) ve `docker compose up -d` ile yeniden yükleyin — **veya** admin panelinden *Ayarlar → QR Kod Adresi* alanını güncelleyin (yeniden başlatma gerekmez).
 2. Admin panelinde **Ayarlar → QR Kod** bölümünden kodu görüntüleyin.
 3. **"Yüksek Çözünürlüklü PNG İndir"** ile baskıya uygun (2048px) dosyayı alın.
 4. Davetiye/kart/tablet standı üzerine bastırın. Düğün adı QR'ın yanında yer alacak şekilde tasarlanabilir.
@@ -241,7 +268,7 @@ Loglar okunabilir düzendedir:
 
 - Sistem tamamen yereldir; internet gerektirmez.
 - Pi'yi düğün Wi-Fi'ına bağlayın, IP'sini öğrenin: `hostname -I`
-- Misafirler `http://<pi-ip>` adresine girer (QR bunu otomatik yapar).
+- Misafirler `http://<pi-ip>:33464` adresine girer (QR bunu otomatik yapar).
 - Fontlar dâhil tüm kaynaklar uygulama içinde barındırılır (self-host) — internet olmasa da arayüz eksiksiz açılır.
 
 ## Domain Bağlama ve HTTPS
@@ -325,7 +352,7 @@ npm run build      # dist/ üretir; backend otomatik sunar
 | Admin girişi 429 | Brute-force koruması (15 dk). Bekleyin veya container'ı restart edin |
 | `docker compose ps` → unhealthy | `/api/health` başarısız: storage veya DB sorunu. `docker compose logs app` kontrol edin |
 | Sayfa 503 "Arayüz derlenmemiş" | İmajdaki statik dosya eksik (imajı `--build` ile yeniden oluşturun) |
-| Telefon siteyi açmıyor | Pi ve telefon aynı Wi-Fi ağında mı? `hostname -I` ile IP doğrulayın; port 80 kullanılıyorsa `.env`'de `APP_PORT` değiştirin |
+| Telefon siteyi açmıyor | Pi ve telefon aynı Wi-Fi ağında mı? `hostname -I` ile IP doğrulayın; adres `http://<pi-ip>:33464` olmalı ( portu unutmayın). Port çakışması olursa `.env`'de `APP_PORT` değiştirin |
 | Video oynatıcı seek etmiyor | Tarayıcı Range destekliyor olmalı; modern tarayıcıda sorun çıkmaz. Eski cihazda dosyayı indirin |
 | Pi restart sonrası site yok | `restart: unless-stopped` + `systemctl enable docker` sayesinde otomatik açılır. Açılmıyorsa: `docker compose ps`, `systemctl status docker` |
 

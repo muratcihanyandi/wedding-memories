@@ -18,8 +18,16 @@ _SessionLocal: sessionmaker | None = None
 
 
 def init_engine(database_url: str):
-    """Engine'i olusturur. SQLite URL'lerinde db klasoru otomatik acilir."""
+    """Engine'i olusturur.
+
+    - SQLite URL'lerinde db klasoru otomatik acilir (WAL modu ile).
+    - Duz 'postgresql://' URL'leri SQLAlchemy'in psycopg (v3) surucusune
+      cevrilir; boylece standart baglanti dizisi dogrudan kullanilabilir.
+    """
     global _engine, _SessionLocal
+
+    if database_url.startswith("postgresql://"):
+        database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
     if database_url.startswith("sqlite:///"):
         db_path = database_url.replace("sqlite:///", "", 1)
@@ -30,7 +38,7 @@ def init_engine(database_url: str):
     if database_url.startswith("sqlite"):
         connect_args["check_same_thread"] = False
 
-    _engine = create_engine(database_url, connect_args=connect_args)
+    _engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)
 
     if database_url.startswith("sqlite"):
 

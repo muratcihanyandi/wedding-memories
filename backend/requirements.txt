@@ -5,3 +5,5 @@ pillow>=10.3
 pillow-heif>=0.13
 qrcode[pil]>=7.4
 python-multipart>=0.0.9
+# PostgreSQL destegi (DATABASE_URL postgresql://... ise gerekir)
+psycopg[binary]>=3.2

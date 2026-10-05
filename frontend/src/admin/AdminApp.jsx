@@ -58,6 +58,9 @@ export default function AdminApp() {
           <NavLink to="/admin/users" className={({ isActive }) => (isActive ? "active" : "")}>
             {t.adminGuests}
           </NavLink>
+          <NavLink to="/album" className={({ isActive }) => (isActive ? "active" : "")}>
+            {t.albumTitle}
+          </NavLink>
           <NavLink to="/admin/settings" className={({ isActive }) => (isActive ? "active" : "")}>
             {t.adminSettings}
           </NavLink>

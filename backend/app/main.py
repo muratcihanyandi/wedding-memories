@@ -178,6 +178,7 @@ def create_app() -> FastAPI:
 
     app.include_router(public.router)
     app.include_router(admin.router)
+    app.include_router(admin.album_router)
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(_request, exc):

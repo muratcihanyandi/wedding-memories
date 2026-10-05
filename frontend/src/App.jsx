@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Upload from "./pages/Upload.jsx";
 import Success from "./pages/Success.jsx";
+import Album from "./pages/Album.jsx";
 import AdminLogin from "./admin/Login.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
 import Dashboard from "./admin/Dashboard.jsx";
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/success" element={<Success />} />
 
         {/* Admin */}
+        <Route path="/album" element={<Album />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminApp />}>
           <Route index element={<Dashboard />} />

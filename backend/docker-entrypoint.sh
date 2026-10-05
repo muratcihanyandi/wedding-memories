@@ -10,7 +10,7 @@ mkdir -p /app/data/db
 exec uvicorn app.main:create_app \
     --factory \
     --host 0.0.0.0 \
-    --port 8000 \
+    --port 33464 \
     --workers 1 \
     --timeout-keep-alive 65 \
     --no-access-log

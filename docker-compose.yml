@@ -11,12 +11,17 @@ services:
         required: false
     environment:
       # Container ici sabit yollar; host tarafindan .env ile yapilandirilir
-      APP_ENV: production
-      DATABASE_URL: sqlite:////app/data/db/wedding.sqlite3
+      APP_ENV: ${APP_ENV:-production}
+      # SQLite varsayilan; PostgreSQL icin .env'de DATABASE_URL tanimlayin
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/db/wedding.sqlite3}
       UPLOAD_ROOT: /app/data/uploads
       FRONTEND_DIST: /app/static
+      REQUIRE_STORAGE_MARKER: ${REQUIRE_STORAGE_MARKER:-true}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
     ports:
-      - "${APP_PORT:-80}:8000"
+      - "${APP_PORT:-33464}:33464"
     volumes:
       # Upload'lar USB diskte tutulur - container silinse de kaybolmaz
       - ${UPLOAD_ROOT_HOST:-/mnt/usb/wedding-uploads}:/app/data/uploads
