@@ -768,6 +768,201 @@ textarea.input {
   margin-bottom: 16px;
 }
 
+/* ---------- Gorunum anahtari (tum fotograflar / kisilere gore) ---------- */
+
+.album-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.view-toggle {
+  display: inline-flex;
+  background: var(--pink-50);
+  border: 1.5px solid var(--pink-200);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.view-toggle button {
+  border: none;
+  background: transparent;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  min-height: 42px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.view-toggle button.active {
+  background: var(--surface);
+  color: #6b4e45;
+  box-shadow: var(--shadow-tile);
+}
+
+/* ---------- Kisilere gore bolumler ---------- */
+
+.person-section {
+  margin-bottom: 30px;
+}
+
+.person-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.person-name {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ---------- ZIP secenekleri ---------- */
+
+.zip-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Dosya secme penceresi ---------- */
+
+.picker-dialog {
+  max-width: 560px;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.picker-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.picker-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  margin: 4px 0 12px;
+  padding: 2px;
+}
+
+.picker-tile {
+  position: relative;
+}
+
+.picker-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 2.5px solid transparent;
+  background: var(--pink-50);
+  overflow: hidden;
+  padding: 0;
+  display: block;
+  position: relative;
+  transition: border-color 0.15s ease;
+}
+
+.picker-tile.selected .picker-preview {
+  border-color: var(--gold);
+}
+
+.picker-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.picker-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  background: linear-gradient(135deg, var(--pink-100), var(--champagne));
+}
+
+.picker-preview .tile-check {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.picker-tile.selected .picker-preview .tile-check {
+  background: var(--gold);
+  color: #fff;
+}
+
+.picker-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: var(--shadow-tile);
+}
+
+.picker-name {
+  display: block;
+  font-size: 0.66rem;
+  color: var(--text-soft);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.picker-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.picker-action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .picker-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .chip {
   border: 1.5px solid var(--pink-200);
   background: var(--surface);

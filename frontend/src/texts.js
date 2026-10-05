@@ -33,12 +33,31 @@ export const t = {
   successThanks: (name) => `${name}, anılarını bizimle paylaştığın için teşekkür ederiz.`,
   addMoreLink: "Başka Anı Ekle",
 
-  // Albüm (/album)
+  // Albüm (/album) - herkese acik
   albumTitle: "Düğün Anıları",
+  albumNav: "Albüm",
   albumAll: "Tümü",
   albumEmpty: "Henüz yüklenen anı yok. 🤍",
   albumZipAll: "Tümünü ZIP indir",
   uploadedBy: (name) => name,
+  viewAll: "Tüm Fotoğraflar",
+  viewByPerson: "Kişilere Göre",
+  zipGrouped: "Klasörlü ZIP",
+  zipGroupedHint: "Her kişi kendi klasöründe",
+  zipFlat: "Tek Klasör ZIP",
+  zipFlatHint: "Tüm dosyalar birlikte",
+
+  // Dosya seçme penceresi (yükleme)
+  pickerTitle: "Anı Ekle",
+  pickerHint: "Galerinden fotoğraf ve video seç — tek tek veya toplu.",
+  pickerGallery: "Galeriden Seç",
+  pickerCamera: "Kamerayla Çek",
+  pickerAddMore: "+ Daha Ekle",
+  pickerSelected: (n) => `${n} dosya seçildi`,
+  pickerUpload: (n) => `${n} Dosyayı Yükle`,
+
+  // Admin galeri
+  adminGallery: "Galeri",
 
   // Genel
   loading: "Yükleniyor...",

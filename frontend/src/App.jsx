@@ -9,6 +9,7 @@ import AdminApp from "./admin/AdminApp.jsx";
 import Dashboard from "./admin/Dashboard.jsx";
 import Users from "./admin/Users.jsx";
 import UserDetail from "./admin/UserDetail.jsx";
+import AdminGallery from "./admin/AdminGallery.jsx";
 import Settings from "./admin/Settings.jsx";
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="users/:id" element={<UserDetail />} />
+          <Route path="gallery" element={<AdminGallery />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 

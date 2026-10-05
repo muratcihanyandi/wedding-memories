@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch, uploadFile } from "../lib/api.js";
 import { humanSize, t } from "../texts.js";
 import { CameraIcon, HeartIcon, ImageIcon, VideoIcon } from "../components/icons.jsx";
+import PickerModal from "../components/PickerModal.jsx";
 
 const MAX_CONCURRENT = 2; // Pi ve WiFi'yi yormadan iki dosya ayni anda
 
@@ -87,10 +88,10 @@ export default function Upload() {
   const [user, setUser] = useState(null);
   const [config, setConfig] = useState(null);
   const [items, setItems] = useState([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const itemsRef = useRef(items);
   const inflight = useRef(new Set());
-  const inputRef = useRef(null);
 
   useEffect(() => {
     itemsRef.current = items;
@@ -186,7 +187,6 @@ export default function Upload() {
     const accepted = Array.from(fileList).map(makeItem);
     if (accepted.length === 0) return;
     setItems((prev) => [...prev, ...accepted]);
-    if (inputRef.current) inputRef.current.value = "";
   }
 
   function retry(key) {
@@ -230,18 +230,9 @@ export default function Upload() {
       </header>
 
       <section>
-        <input
-          ref={inputRef}
-          id="file-input"
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          hidden
-          onChange={(e) => addFiles(e.target.files)}
-        />
         <button
           className="big-add"
-          onClick={() => inputRef.current && inputRef.current.click()}
+          onClick={() => setPickerOpen(true)}
           aria-labelledby="add-label"
         >
           <CameraIcon size={34} />
@@ -250,6 +241,15 @@ export default function Upload() {
         <p className="text-soft center" style={{ marginTop: 10 }}>
           Fotoğraflar ve videolar aynı anda seçilebilir.
         </p>
+        {pickerOpen && (
+          <PickerModal
+            onConfirm={(files) => {
+              setPickerOpen(false);
+              addFiles(files);
+            }}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
       </section>
 
       {activeCount > 0 && (

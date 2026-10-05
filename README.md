@@ -50,7 +50,10 @@ Yükleme (progress bar)                Görüntüle · İndir · ZIP · Sil
 - Aynı isim girilirse "aynı kişiyim / farklı bir kişiyim" seçeneği sunulur; farklı kişiler `Elif-2` şeklinde ayrı klasör alır.
 - Dosyalar **hiçbir zaman RAM'e tam alınmadan**, 1 MB'lık parçalarla diske akıtılır (streaming). 1 GB+ düğün videoları güvenle yüklenebilir.
 - Yükleme yarıda kesilirse geçici dosya temizlenir, veritabanına kayıt oluşmaz.
-- **`/album`** sayfası: admin girişiyle erişilen, tüm katılımcıların yüklediği fotoğraf/videoların yükleme sahibi adıyla listelendiği sade galeri — yükleylene göre filtre, tıklayınca büyütme ve **"Tümünü ZIP indir"** özelliği içerir (ayarlar/istatistik yoktur).
+- **Dosya seçme penceresi**: "+ Fotoğraf veya Video Ekle" düğmesi site tasarımıyla uyumlu bir pencere açar — galeriden veya kameradan seçim yapılır; seçilen dosyalar işaretlenebilir/kaldırılabilir ızgarada listelenir ve tekli/toplu yükleme yapılır. (Not: tarayıcı güvenliği gereği cihaz galerisini sayfa içinden taramak mümkün değildir; "Galeriden Seç" sistemin kendi seçicisini açar, seçim sonrası akış tamamen site tasarımındadır.)
+- **`/album` sayfası — HERKESE AÇIK** (giriş gerektirmez): tüm katılımcıların yüklediği fotoğraf/videolar yükleme sahibi adıyla listelenir. İki görünüm: **Tüm Fotoğraflar** (tek duvar) ve **Kişilere Göre** (kişi başı bölümler). Tıklayınca büyütme, indirme ve iki ZIP modu içerir. ⚠️ Linki bilen herkes bu sayfayı görebilir; silme/ayarlar yalnızca admin panelinde.
+- **Admin → Galeri** (`/admin/gallery`): aynı iki görünüm + seçim moduyla toplu/tekil silme, indirme ve ZIP — yönetim yetkileriyle.
+- **ZIP indirme** (albüm + admin galeri): **Klasörlü ZIP** (her kişi kendi klasöründe: `Elif/IMG_1234.jpg`) veya **Tek Klasör ZIP** (tüm dosyalar birlikte; çakışan isimler `isim_2` ile ayrıştırılır).
 
 ## Mimari ve Teknoloji Seçimi
 

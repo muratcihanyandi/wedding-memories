@@ -26,7 +26,7 @@ from starlette.staticfiles import StaticFiles
 from .config import get_settings
 from .db import create_all, init_engine
 from .rate_limit import SlidingWindowLimiter
-from .routes import admin, public
+from .routes import admin, album, public
 from .storage import check_storage, safe_join
 
 logger = logging.getLogger("wedding")
@@ -179,7 +179,7 @@ def create_app() -> FastAPI:
 
     app.include_router(public.router)
     app.include_router(admin.router)
-    app.include_router(admin.album_router)
+    app.include_router(album.router)
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(_request, exc):
