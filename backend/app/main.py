@@ -144,6 +144,12 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
+        # Gelistirmede (marker zorunlu degilken) upload kokunu uygulama
+        # olusturabilir. Uretimde olusturmaz: bind mount klasoru getirmisse
+        # kullanir, gelmemisse storage sagliksiz raporlanir.
+        if not settings.require_storage_marker and not settings.upload_root.exists():
+            settings.upload_root.mkdir(parents=True, exist_ok=True)
+
         storage = check_storage(settings.upload_root, settings.require_storage_marker)
         if storage.ok:
             logger.info("Storage ready: %s", settings.upload_root)

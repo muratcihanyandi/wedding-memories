@@ -412,11 +412,13 @@ def qr_code_png(
     qr = qrcode.QRCode(
         version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
-        box_size=max(2, size // 49),
+        box_size=1,
         border=4,
     )
     qr.add_data(url)
     qr.make(fit=True)
+    # Istenen piksel boyutuna en yakin temiz olcek (baski kalitesi icin)
+    qr.box_size = max(2, size // (qr.modules_count + 2 * 4))
     img = qr.make_image(fill_color="#5B5450", back_color="white")
 
     buf = io.BytesIO()

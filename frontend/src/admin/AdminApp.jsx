@@ -7,16 +7,14 @@ import { BrandMark } from "../components/icons.jsx";
 
 export default function AdminApp() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState(null);
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const me = await adminFetch("/api/admin/me");
+        await adminFetch("/api/admin/me");
         if (!cancelled) {
-          setUsername(me.username);
           setChecked(true);
         }
       } catch {
@@ -64,7 +62,7 @@ export default function AdminApp() {
             {t.adminSettings}
           </NavLink>
           <button className="btn btn-ghost btn-sm" onClick={logout}>
-            {t.adminLogout} ({username})
+            {t.adminLogout}
           </button>
         </nav>
       </header>
