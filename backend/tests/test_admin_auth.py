@@ -69,9 +69,27 @@ def test_login_lockout_clears_on_success_before_limit(client):
 
 
 def test_login_without_configured_hash(client_factory):
-    client = client_factory(ADMIN_PASSWORD_HASH="")
+    client = client_factory(ADMIN_PASSWORD_HASH="", ADMIN_PASSWORD="")
     res = _login(client)
     assert res.status_code == 503
+
+
+def test_login_plain_password(client_factory):
+    client = client_factory(ADMIN_PASSWORD_HASH="", ADMIN_PASSWORD="duz-metin-sifre")
+    res = _login(client, password="duz-metin-sifre")
+    assert res.status_code == 200
+    assert "csrf_token" in res.json()
+
+    res = _login(client, password="yanlis")
+    assert res.status_code == 401
+
+
+def test_login_hash_takes_precedence_over_plain(client_factory):
+    client = client_factory(ADMIN_PASSWORD="duz-metin-sifre")  # hash de kurulu
+    res = _login(client, password=ADMIN_PASS)
+    assert res.status_code == 200
+    res = _login(client, password="duz-metin-sifre")
+    assert res.status_code == 401
 
 
 def test_me_requires_session(client):

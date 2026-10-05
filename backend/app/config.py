@@ -38,6 +38,7 @@ class Settings:
     frontend_dist: Path | None
     max_upload_size_mb: int
     admin_username: str
+    admin_password: str
     admin_password_hash: str
     session_secret: str
     public_url: str
@@ -69,6 +70,7 @@ class Settings:
             frontend_dist=Path(frontend_dist) if frontend_dist else None,
             max_upload_size_mb=_env_int("MAX_UPLOAD_SIZE_MB", 2048),
             admin_username=_env_str("ADMIN_USERNAME", "admin"),
+            admin_password=_env_str("ADMIN_PASSWORD", ""),
             admin_password_hash=_env_str("ADMIN_PASSWORD_HASH", ""),
             session_secret=_env_str("SESSION_SECRET", ""),
             public_url=_env_str("PUBLIC_URL", ""),

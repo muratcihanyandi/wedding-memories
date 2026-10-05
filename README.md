@@ -136,9 +136,9 @@ Pi'nizde **CasaOS** varsa derleme yapmadan hazır imajı çekebilirsiniz. İmaj 
    > `/DATA`, CasaOS'un kendi veri dizinidir; SQLite veritabanı orada tutulur (USB diskte değil — disk yavaşsa DB yavaşlar).
 
 3. [docker-compose.casaos.yml](docker-compose.casaos.yml) dosyasını açın ve `DEGISTIR` etiketli değerleri doldurun:
-   - `ADMIN_PASSWORD_HASH`: repo'yu klonlayıp `python3 scripts/generate_admin_hash.py` çalıştırın, çıkan `pbkdf2_sha256$...` değerini koyun
+   - `ADMIN_PASSWORD`: admin giriş şifresi — buraya ne yazarsanız o geçerli
    - `SESSION_SECRET`: rastgele uzun metin (`python3 -c "import secrets;print(secrets.token_hex(32))"`)
-   - `PUBLIC_URL`: Pi'nin IP'si (örn. `http://192.168.1.50`)
+   - `PUBLIC_URL`: Pi'nin IP'si + port (örn. `http://192.168.1.50:33464`)
    - volumes bölümündeki USB yolu
 
 4. CasaOS → **App Store → sağ üst "+" → Install from Docker-compose** (veya Docker Compose) seçeneğine düzenlediğiniz içeriği yapıştırıp kurun.
@@ -232,13 +232,28 @@ Notlar:
 
 ## Admin Hesabı Oluşturma
 
+İki yöntemden birini seçin:
+
+**1) Düz metin şifre (kolay, tek seferlik kullanım için uygun):**
+
+```
+ADMIN_PASSWORD=dugun-sifrem
+```
+
+Compose'a ne yazarsanız giriş şifresi odur. Değiştirmek için değeri güncelleyip uygulamayı yeniden kurun/başlatın.
+
+**2) Hash (daha güvenli):**
+
 ```bash
 python3 scripts/generate_admin_hash.py
 ```
 
-- Şifre en az 8 karakter olmalı, iki kez doğrulanır.
-- Çıktıdaki `pbkdf2_sha256$...` değerini `.env` içinde `ADMIN_PASSWORD_HASH=` satırına yazın.
-- Varsayılan/hazır şifre **yoktur**; hash tanımlı değilse admin girişi 503 döner.
+Çıktıyı `ADMIN_PASSWORD_HASH=` satırına yazın. Şifre en az 8 karakter olmalı, iki kez doğrulanır.
+
+**Notlar:**
+- İkisi birden tanımlıysa **hash geçerlidir**.
+- Varsayılan/hazır şifre yoktur; ikisi de boşsa admin girişi 503 döner.
+- ⚠️ Hash'i docker-compose YAML'inin içine yazacaksanız `$` işaretlerini `$$` olarak kaçının (`pbkdf2_sha256$$600000$$...`) — compose aksi halde `$...` bölümlerini değişken sanıp siler ve şifre hiç çalışmaz. `.env` dosyasında veya düz metin `ADMIN_PASSWORD`'de bu sorun yoktur.
 - Değişiklik sonrası: `docker compose up -d` (env yeniden yüklenir).
 
 ## Başlatma / Durdurma / Loglar
@@ -353,7 +368,8 @@ npm run build      # dist/ üretir; backend otomatik sunar
 |---|---|
 | Admin panelinde "Depolama cihazı bağlı değil" | USB mount edilmemiş. `mountpoint /mnt/usb` kontrol edin; disk takılıp `sudo bash scripts/setup_storage.sh /mnt/usb` çalıştırın, sonra `docker compose restart app` |
 | Upload'da "Bu dosya çok büyük" | `MAX_UPLOAD_SIZE_MB` sınırı. Gerekirse `.env`'de yükseltip `docker compose up -d` |
-| Admin girişi 503 "yapılandırılmamış" | `ADMIN_PASSWORD_HASH` boş. `python3 scripts/generate_admin_hash.py` çalıştırıp `.env`'e koyun |
+| Admin girişi 503 "yapılandırılmamış" | `ADMIN_PASSWORD` veya `ADMIN_PASSWORD_HASH` boş. `.env`'e `ADMIN_PASSWORD=şifreniz` yazın ya da hash üretin |
+| Admin girişi "şifre hatalı" (doğru yazdığınızdan eminseniz) | Hash'i compose YAML içine yazdıysanız `$` işaretleri silinmiş olabilir — `$$` olarak kaçın, veya düz metin `ADMIN_PASSWORD` kullanın |
 | Admin girişi 429 | Brute-force koruması (15 dk). Bekleyin veya container'ı restart edin |
 | `docker compose ps` → unhealthy | `/api/health` başarısız: storage veya DB sorunu. `docker compose logs app` kontrol edin |
 | Sayfa 503 "Arayüz derlenmemiş" | İmajdaki statik dosya eksik (imajı `--build` ile yeniden oluşturun) |

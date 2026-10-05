@@ -6,6 +6,7 @@ brute-force korumasi (spec #23).
 """
 
 import io
+import hmac
 import logging
 import shutil
 import sqlite3
@@ -75,8 +76,8 @@ def login(body: LoginRequest, request: Request, response: Response, db: Session 
     require_api_header(request)
     settings = get_settings()
 
-    if not settings.admin_password_hash:
-        logger.error("Admin login attempted but ADMIN_PASSWORD_HASH is not configured")
+    if not settings.admin_password_hash and not settings.admin_password:
+        logger.error("Admin login attempted but no ADMIN_PASSWORD/ADMIN_PASSWORD_HASH configured")
         raise HTTPException(
             status_code=503,
             detail="Yönetici hesabı yapılandırılmamış. Kurulum talimatları için sunucu loglarına bakın.",
@@ -91,7 +92,13 @@ def login(body: LoginRequest, request: Request, response: Response, db: Session 
         )
 
     username_ok = body.username == settings.admin_username
-    password_ok = verify_password(body.password, settings.admin_password_hash)
+    # Iki yontem desteklenir: ADMIN_PASSWORD (duz metin - compose'a ne
+    # yazildiysa o) veya ADMIN_PASSWORD_HASH (pbkdf2). Ikisi birden
+    # tanimliysa hash gecerlidir.
+    if settings.admin_password_hash:
+        password_ok = verify_password(body.password, settings.admin_password_hash)
+    else:
+        password_ok = hmac.compare_digest(body.password, settings.admin_password)
     if not (username_ok and password_ok):
         limiter.record(key)
         logger.warning("Admin login failed from %s", client_ip(request))

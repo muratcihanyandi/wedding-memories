@@ -155,10 +155,11 @@ def create_app() -> FastAPI:
             logger.info("Storage ready: %s", settings.upload_root)
         else:
             logger.warning("Storage NOT ready: %s (%s)", settings.upload_root, storage.message)
-        if not settings.admin_password_hash:
+        if not settings.admin_password_hash and not settings.admin_password:
             logger.warning(
-                "ADMIN_PASSWORD_HASH tanimli degil - admin girisi kapali. "
-                "Kurulum icin: python scripts/generate_admin_hash.py"
+                "ADMIN_PASSWORD / ADMIN_PASSWORD_HASH tanimli degil - admin girisi kapali. "
+                "Kurulum icin .env dosyasina ADMIN_PASSWORD yazin veya "
+                "python scripts/generate_admin_hash.py ile hash uretin."
             )
         yield
 

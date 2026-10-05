@@ -41,8 +41,12 @@ services:
       - FRONTEND_DIST=/app/static
       - REQUIRE_STORAGE_MARKER=true
       - ADMIN_USERNAME=admin
-      # DEGISTIR: python scripts/generate_admin_hash.py ciktisi
-      - ADMIN_PASSWORD_HASH=DEGISTIR-PBKDF2-HASH
+      # DEGISTIR: giris sifresi - buraya ne yazdiysaniz o gecerli.
+      - ADMIN_PASSWORD=DEGISTIR-SIFRE
+      # Isterseniz hash de kullanabilirsiniz (ADMIN_PASSWORD silinir):
+      # docker-compose YAML icinde $ isaretleri $$ olarak kacinmali,
+      # yoksa compose degisken sanip siler:
+      # - ADMIN_PASSWORD_HASH=pbkdf2_sha256$$600000$$abc$$def
       # DEGISTIR: rastgele uzun metin, or: python -c "import secrets;print(secrets.token_hex(32))"
       - SESSION_SECRET=DEGISTIR-RASTGELE-METIN
       # DEGISTIR: Pi'nin IP'si + port (dugun WiFi'indaki adresi)
