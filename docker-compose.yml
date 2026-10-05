@@ -1,0 +1,41 @@
+services:
+  app:
+    build: .
+    image: wedding-memories:latest
+    container_name: wedding-app
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Container ici sabit yollar; host tarafindan .env ile yapilandirilir
+      APP_ENV: production
+      DATABASE_URL: sqlite:////app/data/db/wedding.sqlite3
+      UPLOAD_ROOT: /app/data/uploads
+      FRONTEND_DIST: /app/static
+    ports:
+      - "${APP_PORT:-80}:8000"
+    volumes:
+      # Upload'lar USB diskte tutulur - container silinse de kaybolmaz
+      - ${UPLOAD_ROOT_HOST:-/mnt/usb/wedding-uploads}:/app/data/uploads
+      # SQLite veritabani named volume'da (USB diski yavaysa DB ayri tutulur)
+      - db-data:/app/data/db
+
+  # Opsiyonel TLS reverse proxy - "docker compose --profile proxy up -d"
+  # ile calistirilir. Default kurulumda gerekmez (app dogrudan yayinlanir).
+  proxy:
+    image: nginx:alpine
+    profiles: ["proxy"]
+    container_name: wedding-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - app
+
+volumes:
+  db-data:

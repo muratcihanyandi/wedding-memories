@@ -1,0 +1,2 @@
+# Shell scriptleri Linux container icinde calismali - CRLF'i engelle
+*.sh text eol=lf
