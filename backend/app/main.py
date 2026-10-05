@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from .config import get_settings
 from .db import create_all, init_engine
 from .rate_limit import SlidingWindowLimiter
-from .routes import public
+from .routes import admin, public
 from .storage import check_storage
 
 logging.basicConfig(
@@ -58,5 +58,6 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(public.router)
+    app.include_router(admin.router)
 
     return app

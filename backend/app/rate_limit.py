@@ -17,20 +17,32 @@ class SlidingWindowLimiter:
         self._events: dict[str, deque] = defaultdict(deque)
         self._lock = threading.Lock()
 
-    def allow(self, key: str) -> bool:
-        """Event kaydeder; limit asildiysa False doner."""
+    def is_limited(self, key: str) -> bool:
+        """Event eklemeden limit durumunu sorgular."""
         now = time.monotonic()
         with self._lock:
             queue = self._events[key]
             cutoff = now - self.window_seconds
             while queue and queue[0] < cutoff:
                 queue.popleft()
-            if len(queue) >= self.max_events:
-                return False
-            queue.append(now)
-            if len(self._events) > 5000:
-                self._purge_locked(now)
-            return True
+            return len(queue) >= self.max_events
+
+    def record(self, key: str) -> None:
+        """Yeni bir event kaydeder (limit kontrolu yapmadan)."""
+        now = time.monotonic()
+        with self._lock:
+            self._events[key].append(now)
+
+    def clear(self, key: str) -> None:
+        with self._lock:
+            self._events.pop(key, None)
+
+    def allow(self, key: str) -> bool:
+        """Event kaydeder; limit asildiysa False doner."""
+        if self.is_limited(key):
+            return False
+        self.record(key)
+        return True
 
     def _purge_locked(self, now: float) -> None:
         cutoff = now - self.window_seconds
