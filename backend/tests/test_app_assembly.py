@@ -24,7 +24,10 @@ def test_security_headers_present(client):
     assert res.headers["referrer-policy"] == "strict-origin-when-cross-origin"
 
 
-def test_spa_not_built_returns_503(client):
+def test_spa_not_built_returns_503(client_factory, tmp_path):
+    # FRONTEND_DIST gecersemeyen bir yola isaret ederse arayuz derlenmemis
+    # sayilir (repo'daki gercek frontend/dist'ten etkilenmemek icin).
+    client = client_factory(FRONTEND_DIST=str(tmp_path / "yok"))
     res = client.get("/")
     assert res.status_code == 503
     assert "derlenmemiş" in res.json()["detail"]

@@ -112,14 +112,21 @@ class AccessLogMiddleware:
 
 
 def _find_frontend_dist() -> Path | None:
-    """Derlenmis arayuzu arar: env > repo frontend/dist > Docker /app/static."""
+    """Derlenmis arayuzu arar.
+
+    FRONTEND_DIST acikca verildiyse o yol esas alinir (yoksa arayuz
+    derlenmemis sayilir); verilmemisse repo frontend/dist ve Docker
+    /app/static yollari denenir.
+    """
     settings = get_settings()
-    candidates = []
     if settings.frontend_dist:
-        candidates.append(Path(settings.frontend_dist))
-    candidates.append(Path(__file__).resolve().parents[2] / "frontend" / "dist")
-    candidates.append(Path("/app/static"))
-    for candidate in candidates:
+        if (settings.frontend_dist / "index.html").is_file():
+            return settings.frontend_dist
+        return None
+    for candidate in (
+        Path(__file__).resolve().parents[2] / "frontend" / "dist",
+        Path("/app/static"),
+    ):
         if (candidate / "index.html").is_file():
             return candidate
     return None
