@@ -1181,8 +1181,8 @@ textarea.input {
 
 .env-fold path {
   fill: none;
-  stroke: rgba(163, 108, 100, 0.22);
-  stroke-width: 1;
+  stroke: rgba(160, 100, 92, 0.34);
+  stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
 
