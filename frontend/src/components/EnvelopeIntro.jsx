@@ -217,8 +217,10 @@ export default function EnvelopeIntro({ onReveal, onDone }) {
             </p>
           </div>
           <div className="env-front" aria-hidden="true">
+            {/* cizgi env-front'un clip-path agiz kenarina (50, ~32) paralel
+                ve hemen altinda: kagit bu kivrim cizgisinden cikiyor okunur */}
             <svg className="env-fold" viewBox="0 0 100 70" preserveAspectRatio="none">
-              <path d="M0 2 L50 48 L100 2" />
+              <path d="M0 2 L50 34 L100 2" />
             </svg>
           </div>
         </div>
