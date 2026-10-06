@@ -218,8 +218,8 @@ export default function EnvelopeIntro({ onReveal, onDone }) {
           </div>
           <div className="env-front" aria-hidden="true">
             <svg className="env-fold" viewBox="0 0 100 70" preserveAspectRatio="none">
-              <path d="M0 0 L50 32 L100 0" />
-              <path d="M0 70 L50 32 L100 70" />
+              <path d="M0 2 L50 48 L100 2" />
+              <path d="M0 68 L50 48 L100 68" />
             </svg>
           </div>
         </div>
